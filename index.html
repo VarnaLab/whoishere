@@ -39,12 +39,11 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">Your mac: undefined</a>
+          <a class="brand" href="#">loading...</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li><a href="#" id="createAlias">Create alias</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li id="editAlias" style="display: none"><a href="#">Edit Alias</a></li>
+              <li id="aboutBtn"><a href="#">About</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -55,59 +54,18 @@
 
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div id="dynamic">
-        <div class="hero-unit">
-          <h1>Who is @Varnalab?</h1>
-          <ul id="people">
-          </ul>
-          <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
-        </div>
       </div>
 
       <hr>
 
       <footer>
-        <p>&copy; Company 2012</p>
+        <p>&copy; VarnaLab 2012</p>
       </footer>
 
     </div> <!-- /container -->
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="./assets/js/bootstrap.min.js"></script>
-   
-    <script>
-      var macAddress = null;
-      $.get("http://192.168.1.5/mapAliasToIP.php", function(data, textStatus, hrq){
-        macAddress = data
-        $(".brand").html("Your mac: "+macAddress);
-
-        var appendHuman = function(target, data) {
-          console.log(data);
-          var templateBody = $("#human").html();
-          for(var i in data)
-            templateBody = templateBody.replace("{"+i+"}", data[i]);
-          target.append($(templateBody));
-        }
-
-        $.get("/list.php", function(data){
-          for(var i = 0; i<data.length; i++) {
-            appendHuman($("#people"), data[i]);
-          }
-        }, "json");
-      });
-      $("#createAlias").click(function(){
-        $("#dynamic").html($("#aliasForm").html());
-        if(macAddress)
-          $(".hero-unit #mac").val(macAddress)
-
-        $("#save").click(function(){
-          var mac = $("#mac").val();
-          var alias = $("#alias").val();
-          $.get("/bindAlias.php?mac="+mac+"&alias="+alias, function(data, textStatus, hrq) {
-            alert("DONE");
-          });
-        });
-      });
-    </script>
 
     <script type="text/template" id="aliasForm">
        <div class="hero-unit">
@@ -118,11 +76,117 @@
       </div>
     </script>
 
+    <script type="text/template" id="home">
+      <div class="hero-unit">
+        <h1>Who is @Varnalab?</h1>
+        <ul id="people">
+          <li><p>loading</p></li>
+        </ul>
+        <p><a class="btn btn-primary btn-large" id="refresh">Refresh &raquo;</a></p>
+      </div>
+    </script>
+
+    <script type="text/template" id="about">
+      <div class="hero-unit">
+        <h1>Who is here</h1>
+        <p>
+          This was common development effort been made on 04.02.2012 by:
+        </p>
+        <ul>
+          <li><a href="http://momchilov.github.com/">momchilov</a></li>
+          <li><a href="http://obi.wizartworx.com/cv/">outbounder</a></li>
+          <li><a href="http://github.com/tocreatedev">tocreatedev</a></li>
+        </ul>
+        <p>
+          Special credits go to:
+        </p>
+        <ul>
+          <li><a href="http://github.com">github</a></li>
+          <li><a href="http://twitter.github.com/bootstrap/">twitter bootstrap v2.0</a></li>
+          <li><a href="http://varnalab.org">VarnaLab</a></li>
+        </ul>
+      </div>
+    </script>
+
     <script type="text/template" id="human">
       <li>
         <p>{alias} - {mac_address} - {ip}</p>
       </li>
     </script>
 
+     <script>
+      var ownData = null;
+
+      $("#aboutBtn").click(function(){
+        $(".nav li").removeClass("active");
+        $("#aboutBtn").addClass("active");
+        $("#dynamic").html($("#about").html());
+      });
+
+      $("#editAlias").click(function(){
+        $(".nav li").removeClass("active");
+        $("#editAlias").addClass("active");
+        $("#dynamic").html($("#aliasForm").html());
+        if(ownData) {
+          $(".hero-unit #mac").val(ownData['mac_address']);
+          $(".hero-unit #alias").val(ownData['alias']);
+        }
+
+        $("#save").click(function(){
+          var mac = $("#mac").val();
+          var alias = $("#alias").val();
+          $.get("/bindAlias.php?mac="+mac+"&alias="+alias, function(data, textStatus, hrq) {
+            $(".brand").click();
+          });
+        });
+      });
+
+      var refreshHome = function(){
+        
+        $("#people").empty();
+        $("#people").append($("<li>loading</li>"));
+        $(".brand").html("loading...");
+
+        $.ajax( {
+          url: "http://192.168.1.5/mapAliasToIP.php",
+          type: "get",
+          success: function(data, textStatus, hrq){
+            ownData = data;
+            if(ownData['alias'] == ownData['name'])
+              $(".brand").html("You do not have alias "+ownData['mac_address']+", look here -> ");
+            else
+              $(".brand").html("Welcome "+ownData['alias']);
+            $("#editAlias").show();
+          }, 
+          error: function(){
+            $(".brand").html("Come to Varnalab :)");
+          },
+          dataType: "json"
+        });
+
+        var appendHuman = function(target, data) {
+          var templateBody = $("#human").html();
+          for(var i in data)
+            templateBody = templateBody.replace("{"+i+"}", data[i]);
+          target.append($(templateBody));
+        }
+
+        $.get("/list.php", function(data){
+          $("#people").empty();
+          for(var i = 0; i<data.length; i++) {
+            appendHuman($("#people"), data[i]);
+          }
+        }, "json");
+      }
+
+      $(".brand").click(function(){
+        $(".nav li").removeClass("active");
+        $("#dynamic").html($("#home").html());
+        refreshHome();
+        $("#refresh").click(refreshHome);
+      });
+
+      $(".brand").click();
+    </script>
   </body>
 </html>

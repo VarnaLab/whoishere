@@ -34,6 +34,7 @@ class DataFetcher {
       } else {
 
         // execute a command
+        //ssh2_exec($con, "ping -b -c 1 192.168.1.255");
         if (!($stream = ssh2_exec($con, "arp -a" ))) {
           return "fail: unable to execute command\n";
         } else {

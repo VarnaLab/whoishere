@@ -6,7 +6,7 @@
   $ip=$_SERVER['REMOTE_ADDR'];
   foreach($data as $entry) {
     if($entry['ip'] == $ip) {
-      echo $entry['mac_address'];
+      echo json_encode($entry);
       exit();
     }
   }
