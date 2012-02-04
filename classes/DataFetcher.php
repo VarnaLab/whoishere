@@ -7,7 +7,7 @@ class DataFetcher {
     $lines = explode("\n", $arp_out);
     $parsed = array();
     foreach ($lines as $line) {
-      $res = preg_match('~^(?P<network_name>[\w\-]*) \((?P<ip>[^ ]*)\) at (?P<mac_address>([0-9A-F]{2}:?){6})~', $line, $matches);
+      $res = preg_match('~^(?P<network_name>[\w\-\?]*) \((?P<ip>[^ ]*)\) at (?P<mac_address>([0-9A-F]{2}:?){6})~', $line, $matches);
       if (!$res) {
         continue;
       }
