@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__)."config.php");
+require_once(dirname(__FILE__)."/config.php");
 
 if (!function_exists("ssh2_connect")) die("function ssh2_connect doesn't exist");
 // log in at server1.example.com on port 22
