@@ -159,7 +159,7 @@ a:hover {
   width: 860px;
 }
 .span12, .container {
-  width: 940px;
+  width: 735px;
 }
 .offset1 {
   margin-left: 100px;
@@ -249,7 +249,7 @@ a:hover {
   width: 99.99999998999999%;
 }
 .container {
-  width: 940px;
+  /* width: 940px; */
   margin-left: auto;
   margin-right: auto;
   *zoom: 1;
@@ -2506,6 +2506,7 @@ button.btn.small, input[type="submit"].btn.small {
   left: 0;
   z-index: 1030;
 }
+.navbar-inner .container { padding-left: 10px; } 
 .navbar-fixed-top .navbar-inner {
   padding-left: 0;
   padding-right: 0;
