@@ -22,7 +22,7 @@ if(!($con = ssh2_connect("192.168.1.1", 22))){
                 $data .= $buf;
             }
             fclose($stream);
-            echo $data;
+            echo $data; // TODO parse the data
         }
     }
 }
