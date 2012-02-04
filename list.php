@@ -22,8 +22,24 @@ if(!($con = ssh2_connect("192.168.1.1", 22))){
                 $data .= $buf;
             }
             fclose($stream);
-            echo $data;
         }
     }
+    echo json_encode(parse_arp_output($data));
+}
+function parse_arp_output($arp_out) {
+	$lines = explode("\n", $arp_out);
+	$parsed = array();
+	foreach ($lines as $line) {
+		$res = preg_match('~^(?P<network_name>[\w\-]*) \((?P<ip>[^ ]*)\) at (?P<mac_address>([0-9A-F]{2}:?){6})~', $line, $matches);
+		if (!$res) {
+			continue;
+		}
+		$parsed[] = array(
+			'ip'=>$matches['ip'],
+			'mac_address'=>$matches['mac_address'],
+			'name'=>$matches['network_name']
+		);
+	}
+	return $parsed;
 }
 ?>
