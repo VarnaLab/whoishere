@@ -1,4 +1,4 @@
 <?php
 DEFINE("USER", "");
-DEFINE("PASS", "");
+DEFINE("PASSWORD", "");
 ?>
