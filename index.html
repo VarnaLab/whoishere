@@ -39,10 +39,10 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">Project name</a>
+          <a class="brand" href="#">Your mac: undefined</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#" id="createAlias">Create alias</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
@@ -54,28 +54,12 @@
     <div class="container">
 
       <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit">
-        <h1>Hello, world!</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
-      </div>
-
-      <!-- Example row of columns -->
-      <div class="row">
-        <div class="span4">
-          <h2>Heading</h2>
-           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <div class="span4">
-          <h2>Heading</h2>
-           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn" href="#">View details &raquo;</a></p>
-       </div>
-        <div class="span4">
-          <h2>Heading</h2>
-          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-          <p><a class="btn" href="#">View details &raquo;</a></p>
+      <div id="dynamic">
+        <div class="hero-unit">
+          <h1>Who is @Varnalab?</h1>
+          <ul id="people">
+          </ul>
+          <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
         </div>
       </div>
 
@@ -86,6 +70,59 @@
       </footer>
 
     </div> <!-- /container -->
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+   
+    <script>
+      var macAddress = null;
+      $.get("http://192.168.1.5/mapAliasToIP.php", function(data, textStatus, hrq){
+        macAddress = data
+        $(".brand").html("Your mac: "+macAddress);
+
+        var appendHuman = function(target, data) {
+          console.log(data);
+          var templateBody = $("#human").html();
+          for(var i in data)
+            templateBody = templateBody.replace("{"+i+"}", data[i]);
+          target.append($(templateBody));
+        }
+
+        $.get("/list.php", function(data){
+          for(var i = 0; i<data.length; i++) {
+            appendHuman($("#people"), data[i]);
+          }
+        }, "json");
+      });
+      $("#createAlias").click(function(){
+        $("#dynamic").html($("#aliasForm").html());
+        if(macAddress)
+          $(".hero-unit #mac").val(macAddress)
+
+        $("#save").click(function(){
+          var mac = $("#mac").val();
+          var alias = $("#alias").val();
+          $.get("/bindAlias.php?mac="+mac+"&alias="+alias, function(data, textStatus, hrq) {
+            alert("DONE");
+          });
+        });
+      });
+    </script>
+
+    <script type="text/template" id="aliasForm">
+       <div class="hero-unit">
+        <h1>Make your Mac Alias</h1>
+        <p><input type="text" placeholder="your mac address" id="mac"/></p>
+        <p><input type="text" placeholder="your alias" id="alias"/></p>
+        <p><a class="btn btn-primary btn-large" id="save">Save &raquo;</a></p>
+      </div>
+    </script>
+
+    <script type="text/template" id="human">
+      <li>
+        <p>{alias} - {mac_address} - {ip}</p>
+      </li>
+    </script>
 
   </body>
 </html>
